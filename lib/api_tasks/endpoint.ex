@@ -1,4 +1,4 @@
-defmodule GeoTasks.Endpoint do
+defmodule ApiTasks.Endpoint do
   use Plug.Router
 
   plug(Plug.Logger)
