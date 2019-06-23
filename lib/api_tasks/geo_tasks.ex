@@ -7,20 +7,30 @@ defmodule ApiTasks.GeoTasks do
 
   @doc "Gets undone tasks"
   @spec list(map()) :: list(GeoTask.t())
-  def list(coordinates \\ %{}) do
+  def list(coordinates \\ {}) do
     Query.undone()
     |> Query.near_sphere(coordinates)
     |> Repo.all()
   end
 
+  @doc "Gets task"
+  @spec get(String.t()) :: {:ok, GeoTask.t()} | {:error, :not_found}
+  def get(id) do
+    case Repo.one(Query.by_id(id)) do
+      %GeoTask{} = task -> {:ok, task}
+      _ -> {:error, :not_found}
+    end
+  end
+
   @doc """
   Creates task
   """
-  @spec create(map()) :: {:ok, GeoTask.t()} | {:error, Ecto.Changeset.t()}
-  def create(attrs \\ %{}) do
+  @spec create(map(), map()) :: {:ok, GeoTask.t()} | {:error, Ecto.Changeset.t()}
+  def create(pickup, dropoff) do
     %GeoTask{}
-    |> cast_location(:dropoff_point, "dropoff_lat", "dropoff_long", attrs)
-    |> cast_location(:pickup_point, "pickup_lat", "pickup_long", attrs)
+    |> cast_location(:dropoff_point, "lat", "long", dropoff)
+    |> cast_location(:pickup_point, "lat", "long", pickup)
+    |> validate_required([:pickup_point, :dropoff_point])
     |> Repo.insert()
   end
 
@@ -28,19 +38,11 @@ defmodule ApiTasks.GeoTasks do
   @spec delete(GeoTask.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def delete(task), do: Repo.delete(task)
 
-  @doc "Assigns task to driver"
-  @spec assign(GeoTask.t()) :: {:ok, GeoTask.t()} | {:error, Ecto.Changeset.t()}
-  def assign(%GeoTask{} = task) do
+  @doc "Updates status task"
+  def update_status(%GeoTask{} = task, status) do
     task
-    |> change(status: GeoTask.statuses()[:assigned])
-    |> Repo.update()
-  end
-
-  @doc "Complete task"
-  @spec done(GeoTask.t()) :: {:ok, GeoTask.t()} | {:error, Ecto.Changeset.t()}
-  def done(%GeoTask{} = task) do
-    task
-    |> change(status: GeoTask.statuses()[:done])
+    |> change(status: GeoTask.get_status(status))
+    |> validate_required([:status])
     |> Repo.update()
   end
 

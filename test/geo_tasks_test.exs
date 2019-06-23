@@ -5,16 +5,17 @@ defmodule ApiTasks.GeoTasksTest do
   import ApiTasks.Factory
 
   alias ApiTasks.GeoTasks
+  alias ApiTasks.Repo
 
   test "creates task" do
-    attrs = %{
-      "pickup_lat" => "36.174968",
-      "pickup_long" => "-115.137222",
-      "dropoff_lat" => "36.124642",
-      "dropoff_long" => "-115.171137"
+    pickup = %{"lat" => "36.174968", "long" => "-115.137222"}
+
+    dropoff = %{
+      "lat" => "36.124642",
+      "long" => "-115.171137"
     }
 
-    {:ok, task} = GeoTasks.create(attrs)
+    {:ok, task} = GeoTasks.create(pickup, dropoff)
     assert task.status == GeoTasks.GeoTask.statuses()[:new]
 
     assert task.dropoff_point == %Geo.Point{
@@ -33,17 +34,30 @@ defmodule ApiTasks.GeoTasksTest do
   test "deletes task" do
     task = insert(:task)
     assert {:ok, %GeoTasks.GeoTask{}} = GeoTasks.delete(task)
+    assert length(Repo.all(GeoTasks.GeoTask)) == 0
   end
 
-  test "assigns task" do
+  test "updates status to assigned" do
     task = insert(:task)
-    {:ok, %GeoTasks.GeoTask{} = updated_task} = GeoTasks.assign(task)
+
+    {:ok, %GeoTasks.GeoTask{} = updated_task} =
+      GeoTasks.update_status(
+        task,
+        :assigned
+      )
+
     assert updated_task.status == GeoTasks.GeoTask.statuses()[:assigned]
   end
 
-  test "done task" do
+  test "updates status to done" do
     task = insert(:task)
-    {:ok, %GeoTasks.GeoTask{} = updated_task} = GeoTasks.done(task)
+
+    {:ok, %GeoTasks.GeoTask{} = updated_task} =
+      GeoTasks.update_status(
+        task,
+        :done
+      )
+
     assert updated_task.status == GeoTasks.GeoTask.statuses()[:done]
   end
 

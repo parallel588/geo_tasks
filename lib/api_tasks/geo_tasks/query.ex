@@ -3,6 +3,10 @@ defmodule ApiTasks.GeoTasks.Query do
   import Ecto.Query, warn: false
   import Geo.PostGIS
 
+  def by_id(query \\ GeoTask, id) do
+    from(q in query, where: q.id == ^id)
+  end
+
   def undone(query \\ GeoTask) do
     done_status = GeoTask.statuses()[:done]
     from(q in query, where: q.status != ^done_status)

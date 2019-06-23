@@ -11,4 +11,13 @@ defmodule ApiTasks.Factory do
       }
     }
   end
+
+  def done_task_factory do
+    struct!(
+      task_factory(),
+      %{
+        status: GeoTask.statuses()[:done]
+      }
+    )
+  end
 end
