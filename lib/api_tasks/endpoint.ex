@@ -3,11 +3,15 @@ defmodule ApiTasks.Endpoint do
   alias ApiTasks.ApiController
   alias ApiTasks.AuthenticationPlug
 
+
+
   plug(Plug.Logger)
   plug(AuthenticationPlug)
   plug(:match)
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
   plug(:dispatch)
+
+
 
   get "/tasks" do
     conn
@@ -44,4 +48,5 @@ defmodule ApiTasks.Endpoint do
     |> put_resp_content_type("application/json")
     |> send_resp(status, response)
   end
+
 end

@@ -69,7 +69,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:put, "/task/#{task.id}", %{status: "assigned"})
-        |> put_req_header("authorization", @manager_token)
+        |> put_req_header("authorization", @driver_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       updated_task = Repo.get(GeoTask, task.id)
@@ -84,7 +84,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:put, "/task/#{task.id}", %{status: "done"})
-        |> put_req_header("authorization", @manager_token)
+        |> put_req_header("authorization", @driver_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       updated_task = Repo.get(GeoTask, task.id)
