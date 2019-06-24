@@ -1,8 +1,10 @@
 defmodule ApiTasks.Endpoint do
   use Plug.Router
   alias ApiTasks.ApiController
+  alias ApiTasks.AuthenticationPlug
 
   plug(Plug.Logger)
+  plug(AuthenticationPlug)
   plug(:match)
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
   plug(:dispatch)

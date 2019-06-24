@@ -6,10 +6,22 @@ defmodule ApiTasks.EndpointTest do
   import ApiTasks.Factory
   alias ApiTasks.GeoTasks
   alias ApiTasks.GeoTasks.GeoTask
+  @manager_token "npFjLbDy_3-njP4KLWTd5K64XqorAiwcMcfdKE1qgBecyeFZdT"
+  @driver_token "r9AlnQyHM9D34iv-lvGPYa41InCvxMoGpYfBOwHvblc7uHz8Ez"
 
   @opts ApiTasks.Endpoint.init([])
   describe "GET /tasks" do
-    test "it returns undone tasks" do
+    test "it returns 401 if auth token missing" do
+      conn =
+        conn(:get, "/tasks", %{position: %{lat: 36.124404, long: -115.172605}})
+        |> ApiTasks.Endpoint.call(@opts)
+
+      assert conn.state == :sent
+      assert conn.status == 401
+      assert conn.resp_body == "unauthorized"
+    end
+
+    test "it returns unfulfilled tasks" do
       _task1 =
         insert(:task,
           pickup_point: %Geo.Point{coordinates: {36.128296, -115.186965}, srid: 4326},
@@ -26,6 +38,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:get, "/tasks", %{position: %{lat: 36.124404, long: -115.172605}})
+        |> put_req_header("authorization", @driver_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       assert conn.state == :sent
@@ -40,6 +53,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:delete, "/task/#{task.id}")
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       refute Repo.get(GeoTask, task.id)
@@ -55,6 +69,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:put, "/task/#{task.id}", %{status: "assigned"})
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       updated_task = Repo.get(GeoTask, task.id)
@@ -69,6 +84,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:put, "/task/#{task.id}", %{status: "done"})
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       updated_task = Repo.get(GeoTask, task.id)
@@ -83,6 +99,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:put, "/task/#{task.id}", %{status: "pick"})
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       updated_task = Repo.get(GeoTask, task.id)
@@ -102,6 +119,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:post, "/tasks", params)
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       assert conn.state == :sent
@@ -116,6 +134,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:post, "/tasks", params)
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       assert conn.state == :sent
@@ -131,6 +150,7 @@ defmodule ApiTasks.EndpointTest do
 
       conn =
         conn(:post, "/tasks", params)
+        |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
       assert conn.state == :sent
