@@ -1,4 +1,5 @@
 defmodule ApiTasks.Tokens do
+  @moduledoc false
   @role_driver "driver"
   @role_manager "manager"
   @tokens %{
@@ -27,4 +28,7 @@ defmodule ApiTasks.Tokens do
   end
 
   def fetch_role(_), do: nil
+
+  defguard is_driver(role) when role == @role_driver
+  defguard is_manager(role) when role == @role_manager
 end

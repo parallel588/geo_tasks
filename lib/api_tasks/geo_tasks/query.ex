@@ -1,4 +1,6 @@
 defmodule ApiTasks.GeoTasks.Query do
+  @moduledoc false
+
   alias ApiTasks.GeoTasks.GeoTask
   import Ecto.Query, warn: false
   import Geo.PostGIS

@@ -1,4 +1,5 @@
 defmodule ApiTasks.DataCase do
+  @moduledoc false
   use ExUnit.CaseTemplate
 
   using do

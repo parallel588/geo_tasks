@@ -33,7 +33,8 @@ defmodule API.MixProject do
       {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14.3"},
       {:geo_postgis, "~> 3.1"},
-      {:ex_machina, "~> 2.3", only: :test}
+      {:ex_machina, "~> 2.3", only: :test},
+      {:credo, "~> 0.9.3", only: [:dev, :test]}
     ]
   end
 

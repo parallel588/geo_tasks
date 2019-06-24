@@ -1,4 +1,5 @@
 defmodule ApiTasks.GeoTasks.GeoTask do
+  @moduledoc false
   use Ecto.Schema
   @type t :: %__MODULE__{}
 

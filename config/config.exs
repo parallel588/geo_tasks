@@ -28,4 +28,7 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 config :api_tasks, :ecto_repos, [ApiTasks.Repo]
+config :api_tasks, :endpoint,
+  port: 4001
+
 import_config "#{Mix.env()}.exs"

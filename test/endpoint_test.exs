@@ -3,28 +3,46 @@ defmodule ApiTasks.EndpointTest do
   use ApiTasks.DataCase
   use Plug.Test
 
+  use ApiTasks.Tests.Helpers
   import ApiTasks.Factory
+
   alias ApiTasks.GeoTasks
   alias ApiTasks.GeoTasks.GeoTask
   @manager_token "npFjLbDy_3-njP4KLWTd5K64XqorAiwcMcfdKE1qgBecyeFZdT"
   @driver_token "r9AlnQyHM9D34iv-lvGPYa41InCvxMoGpYfBOwHvblc7uHz8Ez"
 
   @opts ApiTasks.Endpoint.init([])
-  describe "GET /tasks" do
-    test "it returns 401 if auth token missing" do
-      conn =
-        conn(:get, "/tasks", %{position: %{lat: 36.124404, long: -115.172605}})
-        |> ApiTasks.Endpoint.call(@opts)
 
-      assert conn.state == :sent
-      assert conn.status == 401
-      assert conn.resp_body == "unauthorized"
+  @driver_position %{lat: 36.124404, long: -115.172605}
+
+  describe "GET /tasks" do
+    test "its returns 401 if auth token is missing" do
+      assert_unauthentication(conn(:get, "/tasks", %{position: @driver_position})) do
+        ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 401 if auth token is invalid" do
+      assert_unauthentication(conn(:get, "/tasks", %{position: @driver_position})) do
+        put_req_header("authorization", "token")
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 403 if user role isn't driver" do
+      assert_unauthorize(conn(:get, "/tasks", %{position: @driver_position})) do
+        put_req_header("authorization", @manager_token)
+        |> ApiTasks.Endpoint.call(@opts)
+      end
     end
 
     test "it returns unfulfilled tasks" do
       _task1 =
         insert(:task,
-          pickup_point: %Geo.Point{coordinates: {36.128296, -115.186965}, srid: 4326},
+          pickup_point: %Geo.Point{
+            coordinates: {36.128296, -115.186965},
+            srid: 4326
+          },
           status: GeoTasks.GeoTask.statuses()[:done]
         )
 
@@ -48,6 +66,28 @@ defmodule ApiTasks.EndpointTest do
   end
 
   describe "DELETE /task/:id - deletes task" do
+    test "its returns 401 if auth token is missing" do
+      assert_unauthentication(conn(:delete, "/task/1")) do
+        ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 401 if auth token is invalid" do
+      assert_unauthentication(conn(:delete, "/task/1")) do
+        put_req_header("authorization", "token")
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 403 if user role is driver" do
+      task = insert(:task)
+
+      assert_unauthorize(conn(:delete, "/task/#{task.id}")) do
+        put_req_header("authorization", @driver_token)
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
     test "it returns ok" do
       task = insert(:task)
 
@@ -64,6 +104,28 @@ defmodule ApiTasks.EndpointTest do
   end
 
   describe "PUT /task/:id - updates task" do
+    test "its returns 401 if auth token is missing" do
+      assert_unauthentication(conn(:put, "/task/1", %{status: "assigned"})) do
+        ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 401 if auth token is invalid" do
+      assert_unauthentication(conn(:put, "/task/1", %{status: "assigned"})) do
+        put_req_header("authorization", "token")
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 403 if user role is manager" do
+      task = insert(:task)
+
+      assert_unauthorize(conn(:put, "/task/#{task.id}", %{status: "assigned"})) do
+        put_req_header("authorization", @manager_token)
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
     test "it returns assigned task" do
       task = insert(:task)
 
@@ -111,6 +173,26 @@ defmodule ApiTasks.EndpointTest do
   end
 
   describe "POST /tasks - create task" do
+    test "its returns 401 if auth token is missing" do
+      assert_unauthentication(conn(:post, "/tasks", %{dropoff: %{}, pickup: %{}})) do
+        ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 401 if auth token is invalid" do
+      assert_unauthentication(conn(:post, "/tasks", %{dropoff: %{}, pickup: %{}})) do
+        put_req_header("authorization", "token")
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
+    test "its returns 403 if user role is driver" do
+      assert_unauthorize(conn(:post, "/tasks", %{dropoff: %{}, pickup: %{}})) do
+        put_req_header("authorization", @driver_token)
+        |> ApiTasks.Endpoint.call(@opts)
+      end
+    end
+
     test "it creates new task" do
       params = %{
         dropoff: %{lat: 36.124642, long: -115.171137},

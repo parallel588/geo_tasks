@@ -1,5 +1,3 @@
 defmodule ApiTasks do
-  @moduledoc """
-  Documentation for API.
-  """
+  @moduledoc false
 end

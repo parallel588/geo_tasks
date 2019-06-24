@@ -34,7 +34,7 @@ defmodule ApiTasks.GeoTasksTest do
   test "deletes task" do
     task = insert(:task)
     assert {:ok, %GeoTasks.GeoTask{}} = GeoTasks.delete(task)
-    assert length(Repo.all(GeoTasks.GeoTask)) == 0
+    assert Enum.empty?(Repo.all(GeoTasks.GeoTask))
   end
 
   test "updates status to assigned" do
