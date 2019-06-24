@@ -5,15 +5,18 @@ defmodule ApiTasks.GeoTasks.Query do
   import Ecto.Query, warn: false
   import Geo.PostGIS
 
+  @doc "query by task id"
   def by_id(query \\ GeoTask, id) do
     from(q in query, where: q.id == ^id)
   end
 
-  def undone(query \\ GeoTask) do
+  @doc "query for unfulfilled tasks"
+  def unfulfilled(query \\ GeoTask) do
     done_status = GeoTask.statuses()[:done]
     from(q in query, where: q.status != ^done_status)
   end
 
+  @doc "query to sort tasks by distance of location"
   def near_sphere(query \\ GeoTask, _location)
 
   def near_sphere(query, %Geo.Point{} = location) do

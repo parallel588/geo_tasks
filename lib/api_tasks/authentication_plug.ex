@@ -1,5 +1,7 @@
 defmodule ApiTasks.AuthenticationPlug do
-  @moduledoc false
+  @moduledoc """
+  This plug handles authentication.
+  """
 
   alias ApiTasks.Tokens
 

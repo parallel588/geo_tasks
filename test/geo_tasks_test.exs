@@ -31,6 +31,15 @@ defmodule ApiTasks.GeoTasksTest do
            }
   end
 
+  test "creates task with invalid data" do
+    {:error, changeset} = GeoTasks.create(%{}, %{})
+
+    assert changeset.errors == [
+             pickup_point: {"can't be blank", [validation: :required]},
+             dropoff_point: {"can't be blank", [validation: :required]}
+           ]
+  end
+
   test "deletes task" do
     task = insert(:task)
     assert {:ok, %GeoTasks.GeoTask{}} = GeoTasks.delete(task)

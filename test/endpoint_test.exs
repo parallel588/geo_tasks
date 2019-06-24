@@ -204,9 +204,10 @@ defmodule ApiTasks.EndpointTest do
         |> put_req_header("authorization", @manager_token)
         |> ApiTasks.Endpoint.call(@opts)
 
+      [task] = Repo.all(GeoTask)
       assert conn.state == :sent
       assert conn.status == 200
-      assert conn.resp_body == Jason.encode!(%{status: :ok})
+      assert conn.resp_body == Jason.encode!(%{status: :ok, task: task})
     end
 
     test "it returns bad_request if locations if empty" do

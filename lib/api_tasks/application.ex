@@ -9,6 +9,7 @@ defmodule ApiTasks.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     endpoint_config = Application.get_env(:api_tasks, :endpoint)
+
     children = [
       supervisor(ApiTasks.Repo, []),
       Plug.Cowboy.child_spec(

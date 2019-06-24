@@ -4,20 +4,27 @@ defmodule ApiTasks.GeoTasks.Changeset do
   import Ecto.Changeset
   alias ApiTasks.GeoTasks.GeoTask
 
+  # changeset for update status
+  #
   def update_status(%GeoTask{} = task, status) do
     task
     |> change(status: GeoTask.get_status(status))
     |> validate_required([:status])
   end
 
+  # changeset for create task
+  #
   def create(pickup, dropoff) do
     %GeoTask{}
+    |> change
     |> cast_location(:dropoff_point, "lat", "long", dropoff)
     |> cast_location(:pickup_point, "lat", "long", pickup)
     |> validate_required([:pickup_point, :dropoff_point])
   end
 
-  defp cast_location(changeset, set_attr, lat_attr, lng_attr, values) do
+  # cast geo point from values
+  #
+  defp cast_location(changeset, set_attr, lat_attr, lng_attr, values) when is_map(values) do
     lat = Map.get(values, lat_attr)
     lng = Map.get(values, lng_attr)
     do_cast_location(changeset, set_attr, lat, lng)

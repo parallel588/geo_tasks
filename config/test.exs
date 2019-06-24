@@ -4,15 +4,7 @@ use Mix.Config
 
 # Print only warnings and errors during test
 config :logger, level: :warn
-
-config :api_tasks, ApiTasks.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  types: ApiTasks.PostgresTypes,
-  username: "postgres",
-  password: "postgres",
-  database: "geo_tasks_test",
-  hostname: System.get_env("DB_HOST") || "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+config :api_tasks, :endpoint, port: 4002
 
 if File.exists?("./config/test.secret.exs") do
   import_config "test.secret.exs"

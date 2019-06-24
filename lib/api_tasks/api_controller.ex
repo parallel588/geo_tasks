@@ -6,9 +6,18 @@ defmodule ApiTasks.ApiController do
 
   @doc """
   Gets list of unfulfilled  tasks. Sorted by distance from the  geo position.
-  `position`:
-  `lat`
-  `long`
+
+  ## Endpoint
+  GET /tasks
+
+  ### Optional params
+  - `position`:
+      - `lat`
+      - `long`
+
+  ### Response
+    `200` - Ok.
+    `"status: ok, tasks: [....]"`
   """
   def list(conn, params) do
     with :ok <- authorize(conn, :get_tasks) do
@@ -25,11 +34,31 @@ defmodule ApiTasks.ApiController do
 
   @doc """
   Creates new tasks with pickup and dropoff position
+
+  ## Endpoint
+  POST /tasks
+
+  ### Required params
+  - `pickup`:
+    - `lat`
+    - `long`
+  - `dropoff`:
+    - `lat`
+    - `long`
+
+  ### Response
+    #### Success
+    `200` - Ok.
+
+    #### Error
+    `422`- invalid data
+    `400` - bad request
+    `403` - unauthorized
   """
   def create(conn, %{"dropoff" => dropoff, "pickup" => pickup} = _params) do
     with :ok <- authorize(conn, :create_task),
-         {:ok, _task} <- GeoTasks.create(pickup, dropoff) do
-      {conn, 200, Jason.encode!(%{status: :ok})}
+         {:ok, task} <- GeoTasks.create(pickup, dropoff) do
+      {conn, 200, Jason.encode!(%{status: :ok, task: task})}
     else
       {:error, :unauthorized} ->
         unauthorized_request(conn)
@@ -50,6 +79,22 @@ defmodule ApiTasks.ApiController do
 
   @doc """
   Updates status of task
+
+  ## Endpoint
+  PUT /tasks/:task_id
+
+  ### Required params
+  - `task_id`
+  - `status` - must be "assigned" or "done"
+
+  ### Response
+  #### Success
+  `200` - Ok.
+
+  #### Error
+  `404`- not found task
+  `400` - bad request
+  `403` - unauthorized
   """
   def update(conn, task_id, %{"status" => status} = _) when status in ["assigned", "done"] do
     with {:ok, task} <- GeoTasks.get(task_id),
@@ -66,7 +111,21 @@ defmodule ApiTasks.ApiController do
   def update(conn, _task_id, _params), do: bad_request(conn)
 
   @doc """
-  Deletes task
+  Delete task
+
+  ## Endpoint
+  DELETE /tasks/:task_id
+
+  ### Required params
+  - `task_id`
+  ### Response
+  #### Success
+  `200` - Ok.
+
+  #### Error
+  `404`- not found task
+  `400` - bad request
+  `403` - unauthorized
   """
   def delete(conn, task_id) do
     with {:ok, task} <- GeoTasks.get(task_id),

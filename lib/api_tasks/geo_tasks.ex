@@ -4,15 +4,19 @@ defmodule ApiTasks.GeoTasks do
   alias __MODULE__.{Changeset, GeoTask, Query}
   alias ApiTasks.Repo
 
-  @doc "Gets undone tasks"
-  @spec list(map()) :: list(GeoTask.t())
+  @doc "
+  Gets unfulfilled tasks sorted by distance of current position.
+  `coordinates` - the tuple contains geo data of current position
+  example: {lat, long} - {12.3443, -115.648}
+  "
+  @spec list(tuple() | {}) :: list(GeoTask.t())
   def list(coordinates \\ {}) do
-    Query.undone()
+    Query.unfulfilled()
     |> Query.near_sphere(coordinates)
     |> Repo.all()
   end
 
-  @doc "Gets task"
+  @doc "Gets task by id"
   @spec get(String.t()) :: {:ok, GeoTask.t()} | {:error, :not_found}
   def get(id) do
     case Repo.one(Query.by_id(id)) do
@@ -22,7 +26,10 @@ defmodule ApiTasks.GeoTasks do
   end
 
   @doc """
-  Creates task
+  Creates task.
+
+  `pickup` - pickup point, %{"lat" => "36.174", "long" => "-115.137"}
+  `dropoff` - drop off point, %{"lat" => "36.642", "long" => "-115.137"}
   """
   @spec create(map(), map()) ::
           {:ok, GeoTask.t()} | {:error, Ecto.Changeset.t()}
@@ -37,6 +44,8 @@ defmodule ApiTasks.GeoTasks do
   def delete(task), do: Repo.delete(task)
 
   @doc "Updates status task"
+  @spec update_status(GeoTask.t(), String.t()) ::
+          {:ok, GeoTask.t()} | {:error, Ecto.Changeset.t()}
   def update_status(%GeoTask{} = task, status) do
     task
     |> Changeset.update_status(status)

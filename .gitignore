@@ -22,3 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 geo_tasks-*.tar
 
+/config/dev.secret.exs
+/config/test.secret.exs

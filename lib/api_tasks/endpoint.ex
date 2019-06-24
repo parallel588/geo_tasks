@@ -1,4 +1,6 @@
 defmodule ApiTasks.Endpoint do
+  @moduledoc "Api Routers"
+
   use Plug.Router
   alias ApiTasks.ApiController
   alias ApiTasks.AuthenticationPlug
@@ -11,7 +13,7 @@ defmodule ApiTasks.Endpoint do
 
   get "/tasks" do
     conn
-    |> ApiController.list(conn.body_params)
+    |> ApiController.list(conn.query_params)
     |> build_response
   end
 
