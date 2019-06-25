@@ -1,4 +1,4 @@
-defmodule ApiTasks.Endpoint do
+defmodule ApiTasks.Routes do
   @moduledoc "Api Routers"
 
   use Plug.Router

@@ -14,7 +14,7 @@ defmodule ApiTasks.Application do
       supervisor(ApiTasks.Repo, []),
       Plug.Cowboy.child_spec(
         scheme: :http,
-        plug: ApiTasks.Endpoint,
+        plug: ApiTasks.Routes,
         options: [port: Keyword.get(endpoint_config, :port, 4001)]
       )
     ]
