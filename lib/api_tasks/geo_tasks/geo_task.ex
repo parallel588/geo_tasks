@@ -16,19 +16,26 @@ defmodule ApiTasks.GeoTasks.GeoTask do
 
   def statuses, do: @statuses
 
+  @doc "Gets digital status by status name"
+  @spec get_status(any()) :: integer() | nil
   def get_status(status) when is_binary(status),
     do: get_status(String.to_atom(status))
 
   def get_status(status) when is_atom(status), do: @statuses[status]
   def get_status(_status), do: nil
 
-  def get_status_name(%__MODULE__{status: status} = _), do: get_status_name(status)
+  @doc "Gets status name by digital status"
+  @spec get_status_name(any()) :: atom() | nil
+  def get_status_name(%__MODULE__{status: status} = _),
+    do: get_status_name(status)
 
-  def get_status_name(status) do
+  def get_status_name(status) when is_integer(status) do
     with {value, _} <- Enum.find(@statuses, fn {_k, v} -> v == status end) do
       value
     end
   end
+
+  def get_status_name(_), do: nil
 end
 
 defimpl Jason.Encoder, for: Geo.Point do

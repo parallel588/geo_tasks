@@ -6,14 +6,17 @@ defmodule ApiTasks.GeoTasks.Changeset do
 
   # changeset for update status
   #
+  @spec update_status(GeoTask.t(), String.t()) :: Ecto.Changeset.t()
   def update_status(%GeoTask{} = task, status) do
     task
     |> change(status: GeoTask.get_status(status))
     |> validate_required([:status])
+    |> validate_inclusion(:status, 0..2)
   end
 
   # changeset for create task
   #
+  @spec create(map(), map()) :: Ecto.Changeset.t()
   def create(pickup, dropoff) do
     %GeoTask{}
     |> change
